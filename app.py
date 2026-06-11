@@ -2,11 +2,26 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # This loads the variables from your local .env file
+
+DB_HOST = os.environ.get("DB_HOST")
+DB_NAME = os.environ.get("DB_NAME")
+DB_USER = os.environ.get("DB_USER")
+DB_PASS = os.environ.get("DB_PASS")
 # 1. Database Connection Setup (Replace with your actual values)
-DB_HOST = "news-sentiment-database.cn6qmoguuwaw.ap-south-1.rds.amazonaws.com"
-DB_NAME = "postgres"
-DB_USER = "postgres"
-DB_PASS = "Abindas123"
+
+# Streamlit automatically looks into its cloud vault first
+import streamlit as st
+
+# 1. This checks your local .streamlit/secrets.toml OR your Streamlit Cloud secrets vault.
+# 2. If it can't find them, it falls back to your real AWS RDS endpoint strings.
+DB_HOST = st.secrets.get("DB_HOST", os.environ.get("DB_HOST"))
+DB_NAME = st.secrets.get("DB_NAME", "postgres")
+DB_USER = st.secrets.get("DB_USER", "postgres")
+DB_PASS = st.secrets.get("DB_PASSWORD", os.environ.get("DB_PASS"))
 
 def load_data():
     conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
@@ -27,8 +42,8 @@ def load_data():
         
     return df
 
-st.set_page_config(page_title="Multi-Category News Sentiment Dashboard", layout="wide")
-st.title("📊 Multi-Category Real-Time News Sentiment Analyzer")
+st.set_page_config(page_title="News Sentiment Dashboard", layout="wide")
+st.title("📊 Real-Time News Sentiment Analyzer")
 
 # Helper function to generate color intensity based on the decimal score
 def color_sentiment_intensity(val):
